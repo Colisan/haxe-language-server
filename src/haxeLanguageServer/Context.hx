@@ -11,6 +11,7 @@ import haxeLanguageServer.LanguageServerMethods.MethodResult;
 import haxeLanguageServer.features.CompletionFeature;
 import haxeLanguageServer.features.HoverFeature;
 import haxeLanguageServer.features.haxe.CodeLensFeature;
+import haxeLanguageServer.features.haxe.ColorFeature;
 import haxeLanguageServer.features.haxe.DeterminePackageFeature;
 import haxeLanguageServer.features.haxe.DiagnosticsFeature;
 import haxeLanguageServer.features.haxe.DocumentFormattingFeature;
@@ -34,6 +35,7 @@ import jsonrpc.CancellationToken;
 import jsonrpc.Protocol;
 import jsonrpc.ResponseError;
 import jsonrpc.Types;
+import languageServerProtocol.protocol.ColorProvider.DocumentColorRequest;
 import languageServerProtocol.protocol.FoldingRange.FoldingRangeRequest;
 import languageServerProtocol.protocol.Implementation;
 import languageServerProtocol.protocol.Messages.ProtocolRequestType;
@@ -220,6 +222,12 @@ class Context {
 			capabilities.documentSymbolProvider = true;
 		}
 
+		if (textDocument!.colorProvider!.dynamicRegistration == true) {
+			register(DocumentColorRequest.type, haxeSelector);
+		} else {
+			capabilities.colorProvider = true;
+		}
+
 		if (workspace!.symbol!.dynamicRegistration == true) {
 			register(WorkspaceSymbolRequest.type, haxeSelector);
 		} else {
@@ -314,6 +322,7 @@ class Context {
 
 				new CompletionFeature(this);
 				new HoverFeature(this);
+				new ColorFeature(this);
 				new SignatureHelpFeature(this);
 				gotoDefinition = new GotoDefinitionFeature(this);
 				new GotoImplementationFeature(this);
