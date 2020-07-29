@@ -1,5 +1,6 @@
 package haxeLanguageServer.features.haxe;
 
+import StringTools;
 import jsonrpc.CancellationToken;
 import jsonrpc.ResponseError;
 import jsonrpc.Types.NoData;
@@ -33,10 +34,28 @@ class ColorFeature {
 
 	public function onPresentation(params:ColorPresentationParams, token:CancellationToken, resolve:Array<ColorPresentation>->Void,
 			reject:ResponseError<NoData>->Void) {
+		final colStr:String = "0x";
+		if (params.color.alpha == 1) {
+			colStr += StringTools.hex(colorTo3ChannelInt(params.color), 6);
+		} else {
+			colStr += StringTools.hex(colorTo4ChannelInt(params.color), 8);
+		}
 		resolve([
 			{
-				label: "0xTODOTODO"
+				label: colStr
 			}
 		]);
+	}
+
+	public static function colorTo4ChannelInt(col:Color):Int {
+		final a:Int = Std.int(col.alpha * 255);
+		return (a << 24) | colorTo3ChannelInt(col);
+	}
+
+	public static function colorTo3ChannelInt(col:Color):Int {
+		final r:Int = Std.int(col.red * 255);
+		final g:Int = Std.int(col.green * 255);
+		final b:Int = Std.int(col.blue * 255);
+		return (r << 16) | (g << 8) | b;
 	}
 }
